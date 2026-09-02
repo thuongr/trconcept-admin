@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Quản trị hệ thống</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-cyan-400">⚡ Admin Panel</h1>
+        <p class="text-xs text-slate-400 mt-1">Quản lý Sản phẩm, Khách hàng & Đơn hàng trực tiếp từ brain.db</p>
+      </div>
+      <div class="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-400">
+        Chế độ: <span class="text-emerald-400 font-semibold">Không cần đăng nhập</span>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="mb-6 p-4 rounded-xl border text-sm {{ 'bg-emerald-950/50 border-emerald-800 text-emerald-300' if category == 'success' else 'bg-rose-950/50 border-rose-800 text-rose-300' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="flex space-x-2 border-b border-slate-800 mb-6">
+      <button onclick="switchTab('products')" id="btn-products" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-cyan-400 text-cyan-400 transition">📦 Sản phẩm</button>
+      <button onclick="switchTab('customers')" id="btn-customers" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">👥 Khách hàng</button>
+      <button onclick="switchTab('orders')" id="btn-orders" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">🛒 Đơn hàng</button>
+    </div>
+
+    <div id="tab-products" class="tab-content">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Danh sách Sản phẩm</h2>
+        <button onclick="openModal('productModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm sản phẩm</button>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+              <th class="p-3.5">ID</th>
+              <th class="p-3.5">Tên sản phẩm</th>
+              <th class="p-3.5">Loại</th>
+              <th class="p-3.5">Giá ($)</th>
+              <th class="p-3.5">Tồn kho</th>
+              <th class="p-3.5">Mô tả</th>
+              <th class="p-3.5 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            {% for p in products %}
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-3.5 text-slate-500">#{{ p[0] }}</td>
+              <td class="p-3.5 font-medium text-white">{{ p[1] }}</td>
+              <td class="p-3.5">
+                <span class="px-2 py-0.5 rounded text-xs font-semibold 
+                  {% if p[2] == 'physical' %} bg-amber-950/80 text-amber-400 border border-amber-800/50 
+                  {% elif p[2] == 'digital' %} bg-sky-950/80 text-sky-400 border border-sky-800/50 
+                  {% else %} bg-indigo-950/80 text-indigo-400 border border-indigo-800/50 {% endif %}">
+                  {{ p[2] }}
+                </span>
+              </td>
+              <td class="p-3.5 text-cyan-400 font-semibold">${{ "%.2f"|format(p[3]) }}</td>
+              <td class="p-3.5">{{ p[5] if p[5] is not none else '— (Không giới hạn)' }}</td>
+              <td class="p-3.5 text-slate-400 text-xs truncate max-w-xs">{{ p[4] or '—' }}</td>
+              <td class="p-3.5 text-right space-x-2">
+                <button onclick="editProduct('{{ p[0] }}', '{{ p[1] }}', '{{ p[2] }}', '{{ p[3] }}', '{{ p[4] or '' }}', '{{ p[5] if p[5] is not none else '' }}')" class="text-xs text-sky-400 hover:underline">Sửa</button>
+                <a href="/product/delete/{{ p[0] }}" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');" class="text-xs text-rose-400 hover:underline">Xóa</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="p-6 text-center text-slate-500">Chưa có sản phẩm nào.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-customers" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Danh sách Khách hàng</h2>
+        <button onclick="openModal('customerModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm khách hàng</button>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+              <th class="p-3.5">ID</th>
+              <th class="p-3.5">Họ tên</th>
+              <th class="p-3.5">Số điện thoại</th>
+              <th class="p-3.5">Zalo</th>
+              <th class="p-3.5">Ngày đăng ký</th>
+              <th class="p-3.5 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            {% for c in customers %}
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-3.5 text-slate-500">#{{ c[0] }}</td>
+              <td class="p-3.5 font-medium text-white">{{ c[1] }}</td>
+              <td class="p-3.5 text-slate-300">{{ c[2] or '—' }}</td>
+              <td class="p-3.5 text-slate-300">{{ c[3] or '—' }}</td>
+              <td class="p-3.5 text-slate-400 text-xs">{{ c[4] or '—' }}</td>
+              <td class="p-3.5 text-right space-x-2">
+                <button onclick="editCustomer('{{ c[0] }}', '{{ c[1] }}', '{{ c[2] or '' }}', '{{ c[3] or '' }}', '{{ c[4] or '' }}')" class="text-xs text-sky-400 hover:underline">Sửa</button>
+                <a href="/customer/delete/{{ c[0] }}" onclick="return confirm('Bạn có chắc muốn xóa khách hàng này?');" class="text-xs text-rose-400 hover:underline">Xóa</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="p-6 text-center text-slate-500">Chưa có khách hàng nào.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-orders" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Danh sách Đơn hàng</h2>
+        <button onclick="openModal('orderModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm đơn hàng</button>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+              <th class="p-3.5">ID</th>
+              <th class="p-3.5">Khách hàng</th>
+              <th class="p-3.5">Sản phẩm</th>
+              <th class="p-3.5">Số tiền</th>
+              <th class="p-3.5">Trạng thái</th>
+              <th class="p-3.5">Ngày mua</th>
+              <th class="p-3.5 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            {% for o in orders %}
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-3.5 text-slate-500">#{{ o[0] }}</td>
+              <td class="p-3.5 font-medium text-white">{{ o[7] or 'Khách lẻ #' ~ o[1] }}</td>
+              <td class="p-3.5 text-slate-300">{{ o[8] or 'Sản phẩm #' ~ o[2] }}</td>
+              <td class="p-3.5 text-cyan-400 font-semibold">${{ "%.2f"|format(o[3]) }}</td>
+              <td class="p-3.5">
+                <span class="px-2 py-0.5 rounded text-xs font-semibold 
+                  {% if o[4] == 'completed' %} bg-emerald-950 text-emerald-400 border border-emerald-800/50 
+                  {% elif o[4] == 'pending' %} bg-amber-950 text-amber-400 border border-amber-800/50 
+                  {% else %} bg-rose-950 text-rose-400 border border-rose-800/50 {% endif %}">
+                  {{ o[4] }}
+                </span>
+              </td>
+              <td class="p-3.5 text-slate-400 text-xs">{{ o[5] or '—' }}</td>
+              <td class="p-3.5 text-right">
+                <a href="/order/delete/{{ o[0] }}" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" class="text-xs text-rose-400 hover:underline">Xóa</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="p-6 text-center text-slate-500">Chưa có đơn hàng nào. (Lưu ý: Thêm đơn hàng sẽ tự động trừ tồn kho nếu là sản phẩm vật lý).</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="productModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+      <h3 id="productModalTitle" class="text-lg font-semibold mb-4 text-cyan-400">Thêm sản phẩm mới</h3>
+      <form action="/product/save" method="POST" class="space-y-4">
+        <input type="hidden" id="p_id" name="id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Tên sản phẩm</label>
+          <input type="text" id="p_name" name="name" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Loại sản phẩm</label>
+          <select id="p_type" name="type" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+            <option value="physical">Physical (Sản phẩm vật lý - Có trừ tồn kho)</option>
+            <option value="digital">Digital (Sản phẩm số - Không trừ tồn kho)</option>
+            <option value="service">Service (Dịch vụ - Không trừ tồn kho)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Giá ($)</label>
+          <input type="number" step="0.01" id="p_price" name="price" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Số lượng tồn kho (Stock)</label>
+          <input type="number" id="p_stock" name="stock" placeholder="Bỏ trống nếu là sản phẩm số/dịch vụ" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Mô tả</label>
+          <textarea id="p_desc" name="description" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"></textarea>
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeModal('productModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs rounded-lg transition">Lưu lại</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="customerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+      <h3 id="customerModalTitle" class="text-lg font-semibold mb-4 text-cyan-400">Thêm khách hàng mới</h3>
+      <form action="/customer/save" method="POST" class="space-y-4">
+        <input type="hidden" id="c_id" name="id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Họ tên</label>
+          <input type="text" id="c_name" name="name" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Số điện thoại</label>
+          <input type="text" id="c_phone" name="phone" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Zalo</label>
+          <input type="text" id="c_zalo" name="zalo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Ngày đăng ký</label>
+          <input type="date" id="c_date" name="registration_date" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeModal('customerModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs rounded-lg transition">Lưu lại</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="orderModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+      <h3 class="text-lg font-semibold mb-4 text-cyan-400">Tạo đơn hàng mới</h3>
+      <form action="/order/save" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Chọn Khách hàng</label>
+          <select name="customer_id" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+            {% for c in customers %}
+            <option value="{{ c[0] }}">{{ c[1] }} ({{ c[2] or c[3] or 'Không có SĐT/Zalo' }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Chọn Sản phẩm</label>
+          <select name="product_id" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+            {% for p in products %}
+            <option value="{{ p[0] }}">{{ p[1] }} — ${{ p[3] }} (Loại: {{ p[2] }}{% if p[5] is not none %}, Tồn: {{ p[5] }}{% endif %})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Số tiền thanh toán ($)</label>
+          <input type="number" step="0.01" name="amount" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Trạng thái đơn hàng</label>
+          <select name="status" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+            <option value="completed">Completed (Đã hoàn thành)</option>
+            <option value="pending">Pending (Đang chờ xử lý)</option>
+            <option value="cancelled">Cancelled (Đã hủy)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Ngày mua</label>
+          <input type="date" name="purchase_date" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeModal('orderModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs rounded-lg transition">Tạo đơn & Trừ tồn kho nếu vật lý</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-cyan-400', 'text-cyan-400');
+        el.classList.add('border-transparent', 'text-slate-400');
+      });
+      document.getElementById('tab-' + tabName).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabName);
+      activeBtn.classList.remove('border-transparent', 'text-slate-400');
+      activeBtn.classList.add('border-cyan-400', 'text-cyan-400');
+    }
+
+    function openModal(modalId) {
+      if(modalId === 'productModal') {
+        document.getElementById('p_id').value = '';
+        document.getElementById('p_name').value = '';
+        document.getElementById('p_type').value = 'physical';
+        document.getElementById('p_price').value = '';
+        document.getElementById('p_stock').value = '';
+        document.getElementById('p_desc').value = '';
+        document.getElementById('productModalTitle').innerText = 'Thêm sản phẩm mới';
+      } else if(modalId === 'customerModal') {
+        document.getElementById('c_id').value = '';
+        document.getElementById('c_name').value = '';
+        document.getElementById('c_phone').value = '';
+        document.getElementById('c_zalo').value = '';
+        document.getElementById('c_date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('customerModalTitle').innerText = 'Thêm khách hàng mới';
+      }
+      document.getElementById(modalId).classList.remove('hidden');
+      document.getElementById(modalId).classList.add('flex');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('flex');
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function editProduct(id, name, type, price, desc, stock) {
+      document.getElementById('p_id').value = id;
+      document.getElementById('p_name').value = name;
+      document.getElementById('p_type').value = type;
+      document.getElementById('p_price').value = price;
+      document.getElementById('p_desc').value = desc === 'None' ? '' : desc;
+      document.getElementById('p_stock').value = stock === 'None' ? '' : stock;
+      document.getElementById('productModalTitle').innerText = 'Chỉnh sửa sản phẩm #' + id;
+      document.getElementById('productModal').classList.remove('hidden');
+      document.getElementById('productModal').classList.add('flex');
+    }
+
+    function editCustomer(id, name, phone, zalo, date) {
+      document.getElementById('c_id').value = id;
+      document.getElementById('c_name').value = name;
+      document.getElementById('c_phone').value = phone === 'None' ? '' : phone;
+      document.getElementById('c_zalo').value = zalo === 'None' ? '' : zalo;
+      document.getElementById('c_date').value = date === 'None' ? '' : date;
+      document.getElementById('customerModalTitle').innerText = 'Chỉnh sửa khách hàng #' + id;
+      document.getElementById('customerModal').classList.remove('hidden');
+      document.getElementById('customerModal').classList.add('flex');
+    }
+  </script>
+</body>
+</html>

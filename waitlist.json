@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Nguyen Van An",
+    "phone": "0901112221",
+    "zalo": "0901112221",
+    "registration_date": "2026-08-01",
+    "product_name": "AI for Real Work",
+    "product_type": "digital",
+    "price": 149.0,
+    "stock": null,
+    "order_status": "completed"
+  },
+  {
+    "name": "Tran Thi Bich",
+    "phone": "0902223332",
+    "zalo": "0902223332",
+    "registration_date": "2026-08-03",
+    "product_name": "AI for Business Builder",
+    "product_type": "digital",
+    "price": 199.0,
+    "stock": null,
+    "order_status": "completed"
+  },
+  {
+    "name": "Le Hoang Cuong",
+    "phone": "0903334443",
+    "zalo": "0903334443",
+    "registration_date": "2026-08-05",
+    "product_name": "AI for Real Work",
+    "product_type": "digital",
+    "price": 149.0,
+    "stock": null,
+    "order_status": "pending"
+  },
+  {
+    "name": "Pham Thi Dung",
+    "phone": "0904445554",
+    "zalo": "0904445554",
+    "registration_date": "2026-08-08",
+    "product_name": "AI for Business Builder",
+    "product_type": "digital",
+    "price": 199.0,
+    "stock": null,
+    "order_status": "completed"
+  },
+  {
+    "name": "Hoang Van Em",
+    "phone": "0905556665",
+    "zalo": "0905556665",
+    "registration_date": "2026-08-10",
+    "product_name": "AI for Real Work",
+    "product_type": "digital",
+    "price": 149.0,
+    "stock": null,
+    "order_status": "completed"
+  },
+  {
+    "name": "Vu Thi Phuong",
+    "phone": "0906667776",
+    "zalo": "0906667776",
+    "registration_date": "2026-08-12",
+    "product_name": "AI for Business Builder",
+    "product_type": "digital",
+    "price": 199.0,
+    "stock": null,
+    "order_status": "processing"
+  },
+  {
+    "name": "Bui Van Giang",
+    "phone": "0907778887",
+    "zalo": "0907778887",
+    "registration_date": "2026-08-15",
+    "product_name": "AI for Real Work",
+    "product_type": "digital",
+    "price": 149.0,
+    "stock": null,
+    "order_status": "completed"
+  }
+]

@@ -1,0 +1,28 @@
+====================================================
+NHIỆM VỤ: PHÂN TÍCH VÀ GỢI Ý CẬP NHẬT BRAND VOICE
+====================================================
+
+Dưới đây là brand voice hiện tại của tôi:
+
+[PASTE NỘI DUNG brand_voice_prompt.txt VÀO ĐÂY]
+
+----------------------------------------------------
+Dưới đây là bài viết mới tôi vừa đăng / thấy đúng giọng:
+
+[PASTE BÀI VIẾT VÀO ĐÂY]
+
+----------------------------------------------------
+Yêu cầu của tôi:
+
+1. Phân tích bài viết trên và tìm ra những điểm đặc trưng về tone, từ ngữ, cấu trúc câu mà CHƯA có trong brand voice hiện tại.
+
+2. Gợi ý cụ thể nên thêm gì vào brand voice, theo format:
+   - Tiêu đề gợi ý: [tên ngắn gọn]
+   - Nội dung: [mô tả ngắn, rõ ràng]
+
+3. Có từ/cách diễn đạt nào nên BỎ khỏi brand voice vì không còn đúng không?
+
+4. Tóm tắt: sau khi update, brand voice của tôi sẽ "chuẩn" hơn ở điểm nào?
+
+Trả lời ngắn gọn, thực tế — không cần văn hoa.
+====================================================
