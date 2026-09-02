@@ -4,7 +4,9 @@ import os
 
 app = Flask(__name__)
 app.secret_key = "super-secret-key-admin"
-
+@app.route('/')
+def index():
+    return redirect('/admin')
 DB_PATH = 'brain.db'
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
