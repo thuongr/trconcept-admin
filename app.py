@@ -5,8 +5,7 @@ import os
 app = Flask(__name__)
 app.secret_key = "super-secret-key-admin"
 
-DB_PATH = os.path.join(os.path.expanduser("~/Desktop"), "my-brain", "brain.db")
-
+DB_PATH = 'brain.db'
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -17,8 +16,6 @@ def admin_panel():
     conn = get_db_connection()
     products = conn.execute("SELECT * FROM products").fetchall()
     customers = conn.execute("SELECT * FROM customers").fetchall()
-    
-    # Lấy orders kèm tên khách hàng và tên sản phẩm để hiển thị trực quan
     orders = conn.execute("""
         SELECT o.*, c.name as customer_name, p.name as product_name 
         FROM orders o 
@@ -26,10 +23,8 @@ def admin_panel():
         LEFT JOIN products p ON o.product_id = p.id
     """).fetchall()
     conn.close()
-    
     return render_template('admin.html', products=products, customers=customers, orders=orders)
 
-# --- QUẢN LÝ SẢN PHẨM ---
 @app.route('/product/save', methods=['POST'])
 def save_product():
     p_id = request.form.get('id')
@@ -41,11 +36,11 @@ def save_product():
     desc = request.form.get('description')
 
     conn = get_db_connection()
-    if p_id: # Cập nhật
+    if p_id:
         conn.execute("UPDATE products SET name=?, type=?, price=?, description=?, stock=? WHERE id=?",
                      (name, ptype, float(price), desc, stock_val, p_id))
         flash("Đã cập nhật sản phẩm thành công!", "success")
-    else: # Thêm mới
+    else:
         conn.execute("INSERT INTO products (name, type, price, description, stock) VALUES (?, ?, ?, ?, ?)",
                      (name, ptype, float(price), desc, stock_val))
         flash("Đã thêm sản phẩm mới thành công!", "success")
@@ -62,8 +57,6 @@ def delete_product(id):
     flash("Đã xóa sản phẩm!", "success")
     return redirect(url_for('admin_panel'))
 
-
-# --- QUẢN LÝ KHÁCH HÀNG ---
 @app.route('/customer/save', methods=['POST'])
 def save_customer():
     c_id = request.form.get('id')
@@ -97,8 +90,6 @@ def delete_customer(id):
     flash("Đã xóa khách hàng!", "success")
     return redirect(url_for('admin_panel'))
 
-
-# --- QUẢN LÝ ĐƠN HÀNG & TỰ ĐỘNG TRỪ TỒN KHO NẾU LÀ SẢN PHẨM VẬT LÝ ---
 @app.route('/order/save', methods=['POST'])
 def save_order():
     customer_id = request.form.get('customer_id')
@@ -108,15 +99,11 @@ def save_order():
     purchase_date = request.form.get('purchase_date') or None
 
     conn = get_db_connection()
-    
-    # 1. Kiểm tra loại sản phẩm và tồn kho hiện tại
     product = conn.execute("SELECT type, stock FROM products WHERE id=?", (product_id,)).fetchone()
     
     if product:
         p_type = product['type']
         current_stock = product['stock']
-        
-        # 2. Xử lý logic trừ tồn kho nếu là sản phẩm vật lý (physical)
         if p_type == 'physical':
             if current_stock is not None and current_stock > 0:
                 new_stock = current_stock - 1
@@ -124,13 +111,11 @@ def save_order():
             elif current_stock is not None and current_stock <= 0:
                 flash("Cảnh báo: Sản phẩm vật lý này đã hết hàng trong kho!", "error")
 
-    # 3. Thêm đơn hàng vào bảng orders
     conn.execute("INSERT INTO orders (customer_id, product_id, amount, status, purchase_date) VALUES (?, ?, ?, ?, ?)",
                  (customer_id, product_id, float(amount), status, purchase_date))
-    
     conn.commit()
     conn.close()
-    flash("Đã tạo đơn hàng thành công! Hệ thống đã tự động kiểm tra loại sản phẩm để trừ tồn kho (nếu là vật lý).", "success")
+    flash("Đã tạo đơn hàng thành công và tự động cập nhật tồn kho!", "success")
     return redirect(url_for('admin_panel'))
 
 @app.route('/order/delete/<int:id>')
