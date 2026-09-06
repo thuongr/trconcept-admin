@@ -32,6 +32,7 @@
     <div class="flex space-x-2 border-b border-slate-800 mb-6">
       <button onclick="switchTab('products')" id="btn-products" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-cyan-400 text-cyan-400 transition">📦 Sản phẩm</button>
       <button onclick="switchTab('customers')" id="btn-customers" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">👥 Khách hàng</button>
+      <button onclick="switchTab('registrations')" id="btn-registrations" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">📝 Registrations</button>
       <button onclick="switchTab('orders')" id="btn-orders" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">🛒 Đơn hàng</button>
     </div>
 
@@ -120,6 +121,47 @@
       </div>
     </div>
 
+    <div id="tab-registrations" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-lg font-semibold">Website Registrations</h2>
+          <p class="text-xs text-slate-400 mt-1">Dữ liệu trực tiếp từ brain.db trên VPS qua api.trconcept.co</p>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-xl">
+        <table class="w-full text-left border-collapse text-sm min-w-[1000px]">
+          <thead>
+            <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+              <th class="p-3.5">ID</th>
+              <th class="p-3.5">Họ tên</th>
+              <th class="p-3.5">Email</th>
+              <th class="p-3.5">Phone</th>
+              <th class="p-3.5">Business</th>
+              <th class="p-3.5">Program</th>
+              <th class="p-3.5">Status</th>
+              <th class="p-3.5">Ngày đăng ký</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            {% for r in registrations %}
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-3.5 text-slate-500">#{{ r.id }}</td>
+              <td class="p-3.5 font-medium text-white">{{ r.customer_name }}</td>
+              <td class="p-3.5 text-slate-300">{{ r.customer_email }}</td>
+              <td class="p-3.5 text-slate-300">{{ r.customer_phone }}</td>
+              <td class="p-3.5 text-slate-300">{{ r.customer_business or '—' }}</td>
+              <td class="p-3.5 text-cyan-400">{{ r.selected_program }}</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800/50">{{ r.status }}</span></td>
+              <td class="p-3.5 text-slate-400 text-xs">{{ r.created_at }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="p-6 text-center text-slate-500">Chưa có registration nào hoặc API VPS chưa phản hồi.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div id="tab-orders" class="tab-content hidden">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Danh sách Đơn hàng</h2>
@@ -155,7 +197,14 @@
               </td>
               <td class="p-3.5 text-slate-400 text-xs">{{ o[5] or '—' }}</td>
               <td class="p-3.5 text-right">
-                <a href="/order/delete/{{ o[0] }}" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" class="text-xs text-rose-400 hover:underline">Xóa</a>
+                <td class="p-3.5 text-right">
+    {% if o[4] != 'completed' %}
+    <form action="/order/complete/{{ o[0] }}" method="POST" style="display:inline;">
+        <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; margin-right: 4px; font-size: 12px;">Hoàn tất</button>
+    </form>
+    {% endif %}
+    <a href="/order/delete/{{ o[0] }}" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" style="color: #dc3545; text-decoration: none;">Xóa</a>
+</td>
               </td>
             </tr>
             {% else %}
