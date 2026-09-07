@@ -184,8 +184,8 @@
             {% for o in orders %}
             <tr class="hover:bg-slate-800/30 transition">
               <td class="p-3.5 text-slate-500">#{{ o[0] }}</td>
-              <td class="p-3.5 font-medium text-white">{{ o[7] or 'Khách lẻ #' ~ o[1] }}</td>
-              <td class="p-3.5 text-slate-300">{{ o[8] or 'Sản phẩm #' ~ o[2] }}</td>
+              <td class="p-3.5 font-medium text-white">{{ o[6] or 'Khách lẻ #' ~ o[1] }}</td>
+              <td class="p-3.5 text-slate-300">{{ o[7] or 'Sản phẩm #' ~ o[2] }}</td>
               <td class="p-3.5 text-cyan-400 font-semibold">${{ "%.2f"|format(o[3]) }}</td>
               <td class="p-3.5">
                 <span class="px-2 py-0.5 rounded text-xs font-semibold 
