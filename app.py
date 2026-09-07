@@ -46,6 +46,17 @@ def get_remote_registrations():
         print(f'Error loading remote registrations: {error}')
         return []
 
+def get_remote_data(resource):
+    api_url = os.environ.get('WEBSITE_API_URL', 'https://api.trconcept.co').rstrip('/')
+    try:
+        request = Request(f'{api_url}/api/{resource}')
+        with urlopen(request, timeout=10) as response:
+            payload = json.load(response)
+        return payload.get(resource, []) if payload.get('success') else []
+    except Exception as error:
+        print(f'Error loading remote {resource}: {error}')
+        return []
+
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -64,7 +75,14 @@ def admin_panel():
     """).fetchall()
     conn.close()
     registrations = get_remote_registrations()
-    return render_template('admin.html', products=products, customers=customers, orders=orders, registrations=registrations)
+    remote_customers = get_remote_data('customers')
+    remote_orders = get_remote_data('orders')
+    remote_students = get_remote_data('students')
+    return render_template(
+        'admin.html', products=products, customers=remote_customers, orders=remote_orders,
+        legacy_customers=customers, legacy_orders=orders,
+        registrations=registrations, remote_students=remote_students
+    )
 
 @app.route('/product/save', methods=['POST'])
 def save_product():

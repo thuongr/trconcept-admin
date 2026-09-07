@@ -85,9 +85,8 @@
 
     <div id="tab-customers" class="tab-content hidden">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Khách hàng cũ (legacy)</h2>
-        <p class="text-xs text-amber-400 mt-1">Nguồn dữ liệu cũ của admin. Khách đăng ký website xem trong tab Registrations.</p>
-        <button onclick="openModal('customerModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm khách hàng</button>
+        <h2 class="text-lg font-semibold">Customers từ VPS</h2>
+        <p class="text-xs text-emerald-400 mt-1">Nguồn dữ liệu live từ api.trconcept.co</p>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
         <table class="w-full text-left border-collapse text-sm">
@@ -95,24 +94,21 @@
             <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
               <th class="p-3.5">ID</th>
               <th class="p-3.5">Họ tên</th>
+              <th class="p-3.5">Email</th>
               <th class="p-3.5">Số điện thoại</th>
-              <th class="p-3.5">Zalo</th>
-              <th class="p-3.5">Ngày đăng ký</th>
-              <th class="p-3.5 text-right">Thao tác</th>
+              <th class="p-3.5">Student status</th>
+              <th class="p-3.5 text-right">Student ID</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60">
-            {% for c in customers %}
+            {% for c in legacy_customers %}
             <tr class="hover:bg-slate-800/30 transition">
-              <td class="p-3.5 text-slate-500">#{{ c[0] }}</td>
-              <td class="p-3.5 font-medium text-white">{{ c[1] }}</td>
-              <td class="p-3.5 text-slate-300">{{ c[2] or '—' }}</td>
-              <td class="p-3.5 text-slate-300">{{ c[3] or '—' }}</td>
-              <td class="p-3.5 text-slate-400 text-xs">{{ c[4] or '—' }}</td>
-              <td class="p-3.5 text-right space-x-2">
-                <button onclick="editCustomer('{{ c[0] }}', '{{ c[1] }}', '{{ c[2] or '' }}', '{{ c[3] or '' }}', '{{ c[4] or '' }}')" class="text-xs text-sky-400 hover:underline">Sửa</button>
-                <a href="/customer/delete/{{ c[0] }}" onclick="return confirm('Bạn có chắc muốn xóa khách hàng này?');" class="text-xs text-rose-400 hover:underline">Xóa</a>
-              </td>
+              <td class="p-3.5 text-slate-500">#{{ c.id }}</td>
+              <td class="p-3.5 font-medium text-white">{{ c.name }}</td>
+              <td class="p-3.5 text-slate-300">{{ c.email or '—' }}</td>
+              <td class="p-3.5 text-slate-300">{{ c.phone or '—' }}</td>
+              <td class="p-3.5 text-slate-400 text-xs">{{ c.student_status or 'not enrolled' }}</td>
+              <td class="p-3.5 text-right">Student #{{ c.student_id or '—' }}</td>
             </tr>
             {% else %}
             <tr><td colspan="6" class="p-6 text-center text-slate-500">Chưa có khách hàng nào.</td></tr>
@@ -165,9 +161,8 @@
 
     <div id="tab-orders" class="tab-content hidden">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Đơn hàng cũ (legacy)</h2>
-        <p class="text-xs text-amber-400 mt-1">Đơn hàng mới được tạo từ flow thanh toán mới sẽ được đồng bộ sau bước migrate dữ liệu.</p>
-        <button onclick="openModal('orderModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm đơn hàng</button>
+        <h2 class="text-lg font-semibold">Orders từ VPS</h2>
+        <p class="text-xs text-emerald-400 mt-1">Nguồn dữ liệu live từ api.trconcept.co</p>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
         <table class="w-full text-left border-collapse text-sm">
@@ -185,33 +180,21 @@
           <tbody class="divide-y divide-slate-800/60">
             {% for o in orders %}
             <tr class="hover:bg-slate-800/30 transition">
-              <td class="p-3.5 text-slate-500">#{{ o[0] }}</td>
-              <td class="p-3.5 font-medium text-white">{{ o[6] or 'Khách lẻ #' ~ o[1] }}</td>
-              <td class="p-3.5 text-slate-300">{{ o[7] or 'Sản phẩm #' ~ o[2] }}</td>
-              <td class="p-3.5 text-cyan-400 font-semibold">${{ "%.2f"|format(o[3]) }}</td>
+              <td class="p-3.5 text-slate-500">#{{ o.id }}</td>
+              <td class="p-3.5 font-medium text-white">{{ o.customer_name or 'Customer #' ~ o.customer_id }}</td>
+              <td class="p-3.5 text-slate-300">{{ o.program_name }}</td>
+              <td class="p-3.5 text-cyan-400 font-semibold">${{ "%.2f"|format(o.amount) }} {{ o.currency }}</td>
               <td class="p-3.5">
                 <span class="px-2 py-0.5 rounded text-xs font-semibold 
-                  {% if o[4] == 'completed' %} bg-emerald-950 text-emerald-400 border border-emerald-800/50 
-                  {% elif o[4] == 'pending' %} bg-amber-950 text-amber-400 border border-amber-800/50 
+                  {% if o.status == 'completed' %} bg-emerald-950 text-emerald-400 border border-emerald-800/50
+                  {% elif o.status == 'processing' %} bg-amber-950 text-amber-400 border border-amber-800/50
                   {% else %} bg-rose-950 text-rose-400 border border-rose-800/50 {% endif %}">
-                  {{ o[4] }}
+                  {{ o.status }}
                 </span>
               </td>
-              <td class="p-3.5 text-slate-400 text-xs">{{ o[5] or '—' }}</td>
+              <td class="p-3.5 text-slate-400 text-xs">{{ o.created_at or '—' }}</td>
               <td class="p-3.5 text-right">
-                <td class="p-3.5 text-right">
-    {% if o[4] not in ('completed', 'refunded') %}
-    <form action="/order/complete/{{ o[0] }}" method="POST" style="display:inline;">
-        <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; margin-right: 4px; font-size: 12px;">Hoàn tất</button>
-    </form>
-    {% endif %}
-    {% if o[4] != 'refunded' %}
-    <form action="/order/refund/{{ o[0] }}" method="POST" style="display:inline;" onsubmit="return confirm('Đánh dấu đơn hàng này là refunded? Bạn vẫn cần hoàn tiền tại cổng thanh toán.');">
-      <button type="submit" style="background-color: #b45309; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; margin-right: 4px; font-size: 12px;">Refund</button>
-    </form>
-    {% endif %}
-    <a href="/order/delete/{{ o[0] }}" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" style="color: #dc3545; text-decoration: none;">Xóa</a>
-</td>
+                <span class="text-xs text-slate-500">Managed via Mama Fox</span>
               </td>
             </tr>
             {% else %}
