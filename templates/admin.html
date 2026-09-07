@@ -198,9 +198,14 @@
               <td class="p-3.5 text-slate-400 text-xs">{{ o[5] or '—' }}</td>
               <td class="p-3.5 text-right">
                 <td class="p-3.5 text-right">
-    {% if o[4] != 'completed' %}
+    {% if o[4] not in ('completed', 'refunded') %}
     <form action="/order/complete/{{ o[0] }}" method="POST" style="display:inline;">
         <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; margin-right: 4px; font-size: 12px;">Hoàn tất</button>
+    </form>
+    {% endif %}
+    {% if o[4] != 'refunded' %}
+    <form action="/order/refund/{{ o[0] }}" method="POST" style="display:inline;" onsubmit="return confirm('Đánh dấu đơn hàng này là refunded? Bạn vẫn cần hoàn tiền tại cổng thanh toán.');">
+      <button type="submit" style="background-color: #b45309; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; margin-right: 4px; font-size: 12px;">Refund</button>
     </form>
     {% endif %}
     <a href="/order/delete/{{ o[0] }}" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" style="color: #dc3545; text-decoration: none;">Xóa</a>

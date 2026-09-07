@@ -175,9 +175,10 @@ def complete_order(order_id):
     conn.execute("UPDATE orders SET status = 'completed' WHERE id = ?", (order_id,))
     conn.commit()
     
-    # 2. Lấy thông tin email và tên của khách hàng từ đơn hàng vừa cập nhật
+    # 2. The legacy customers table has no email column; keep completion independent
+    # of the old welcome-email flow.
     order_info = conn.execute("""
-        SELECT o.*, c.name as customer_name, c.email as customer_email 
+        SELECT o.*, c.name as customer_name, NULL as customer_email
         FROM orders o
         JOIN customers c ON o.customer_id = c.id
         WHERE o.id = ?
@@ -190,6 +191,25 @@ def complete_order(order_id):
         send_welcome_email(order_info['customer_email'], order_info['customer_name'])
     
     # Quay lại trang admin sau khi hoàn tất
+    return redirect(url_for('admin_panel'))
+
+@app.route('/order/refund/<int:order_id>', methods=['POST'])
+def refund_order(order_id):
+    conn = get_db_connection()
+    order = conn.execute("SELECT id, status FROM orders WHERE id = ?", (order_id,)).fetchone()
+    if not order:
+        conn.close()
+        flash("Không tìm thấy đơn hàng.", "error")
+        return redirect(url_for('admin_panel'))
+    if order['status'] == 'refunded':
+        conn.close()
+        flash("Đơn hàng này đã được hoàn tiền trước đó.", "error")
+        return redirect(url_for('admin_panel'))
+
+    conn.execute("UPDATE orders SET status = 'refunded' WHERE id = ?", (order_id,))
+    conn.commit()
+    conn.close()
+    flash("Đã đánh dấu đơn hàng là refunded. Hãy xử lý khoản hoàn tiền tại cổng thanh toán.", "success")
     return redirect(url_for('admin_panel'))
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
