@@ -12,7 +12,7 @@
     <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-cyan-400">⚡ Admin Panel</h1>
-        <p class="text-xs text-slate-400 mt-1">Quản lý Sản phẩm, Khách hàng & Đơn hàng trực tiếp từ brain.db</p>
+        <p class="text-xs text-slate-400 mt-1">Quản lý catalog cũ và registrations thật từ website API</p>
       </div>
       <div class="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-400">
         Chế độ: <span class="text-emerald-400 font-semibold">Không cần đăng nhập</span>
@@ -31,7 +31,7 @@
 
     <div class="flex space-x-2 border-b border-slate-800 mb-6">
       <button onclick="switchTab('products')" id="btn-products" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-cyan-400 text-cyan-400 transition">📦 Sản phẩm</button>
-      <button onclick="switchTab('customers')" id="btn-customers" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">👥 Khách hàng</button>
+      <button onclick="switchTab('customers')" id="btn-customers" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">👥 Khách hàng cũ</button>
       <button onclick="switchTab('registrations')" id="btn-registrations" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">📝 Registrations</button>
       <button onclick="switchTab('orders')" id="btn-orders" class="tab-btn px-5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">🛒 Đơn hàng</button>
     </div>
@@ -85,7 +85,8 @@
 
     <div id="tab-customers" class="tab-content hidden">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Danh sách Khách hàng</h2>
+        <h2 class="text-lg font-semibold">Khách hàng cũ (legacy)</h2>
+        <p class="text-xs text-amber-400 mt-1">Nguồn dữ liệu cũ của admin. Khách đăng ký website xem trong tab Registrations.</p>
         <button onclick="openModal('customerModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm khách hàng</button>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
@@ -164,7 +165,8 @@
 
     <div id="tab-orders" class="tab-content hidden">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Danh sách Đơn hàng</h2>
+        <h2 class="text-lg font-semibold">Đơn hàng cũ (legacy)</h2>
+        <p class="text-xs text-amber-400 mt-1">Đơn hàng mới được tạo từ flow thanh toán mới sẽ được đồng bộ sau bước migrate dữ liệu.</p>
         <button onclick="openModal('orderModal')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs px-4 py-2 rounded-lg transition">+ Thêm đơn hàng</button>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
